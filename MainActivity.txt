@@ -1,0 +1,153 @@
+package com.example.nguyenhuunhat_17071421;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity {
+    DatabaseSinhvien databaseSinhvien;
+    Button btnthem,btnXoa,btnCapnhat;
+    EditText edtname,edtsdt,edtmasv,edtdiachi;
+    ListView list_sinhvien;
+    private List<Sinhvien> sinhviens;
+    private CustomAdapter customAdapter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_main);
+         databaseSinhvien =
+                new DatabaseSinhvien(this, "sinhvien.sqlite", null, 1);
+//        databaseSinhvien.themSinhvien(new Sinhvien(170714210,
+//                "Nguyen Huu Nhat","Go vap","0123456789"));
+//        databaseSinhvien.themSinhvien(new Sinhvien(170714211,
+//                "Nguyen Huu Hoang","Binh Thanh","0123456789"));
+//
+//        databaseSinhvien.themSinhvien(new Sinhvien(170714212,
+//                "Nguyen Huu Thong","Binh Chanh","0123456789"));
+        edtdiachi = findViewById(R.id.edtDiachi);
+        edtmasv = findViewById(R.id.edtMasv);
+        edtname = findViewById(R.id.edtName);
+        edtsdt = findViewById(R.id.edtSdt);
+
+        list_sinhvien = findViewById(R.id.lv_sinhvien);
+        btnthem=findViewById(R.id.btnThem);
+        btnXoa=findViewById(R.id.btnXoa);
+        btnCapnhat=findViewById(R.id.btnCapnhat);
+        sinhviens = databaseSinhvien.getAllUser();
+        setAdapter();
+     btnthem.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View v) {
+    Sinhvien sinhvien=creUser();
+        if(sinhvien!=null) {
+            databaseSinhvien.themSinhvien(sinhvien);
+
+        }
+        sinhviens.clear();
+        sinhviens.addAll(databaseSinhvien.getAllUser());
+        setAdapter();
+    }
+    });
+
+     list_sinhvien.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Sinhvien user=sinhviens.get(position);
+                edtmasv.setText(String.valueOf(user.getMasv()));
+                edtname.setText(user.getName());
+                edtdiachi.setText(user.getDiachi());
+                edtsdt.setText(user.getSoDt());
+                btnthem.setEnabled(false);
+                btnCapnhat.setEnabled(true);
+
+
+            }
+        });
+        btnCapnhat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Sinhvien user=new Sinhvien();
+                user.setMasv(Integer.parseInt(String.valueOf(edtmasv.getText())));
+                user.setName(edtname.getText()+"");
+                user.setDiachi(edtdiachi.getText()+"");
+                user.setSoDt(edtsdt.getText()+"");
+                int result=databaseSinhvien.updateUser(user);
+                if(result>0){
+
+                    sinhviens.clear();
+                    sinhviens.addAll(databaseSinhvien.getAllUser());
+                    customAdapter.notifyDataSetChanged();
+
+                } btnthem.setEnabled(true);
+                btnCapnhat.setEnabled(false);
+            }
+
+        });
+        btnXoa.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                xoaUser();
+            }
+        });
+
+
+    }
+
+
+
+
+        private void setAdapter(){
+            if(customAdapter==null){
+                customAdapter=new CustomAdapter(this,R.layout.item_listview_user,sinhviens);
+                list_sinhvien.setAdapter(customAdapter);
+            }else{
+                customAdapter.notifyDataSetChanged();
+                list_sinhvien.setSelection(customAdapter.getCount()-1);
+            }
+
+        }
+
+        private Sinhvien creUser(){
+        int mssv=(Integer.parseInt(edtmasv.getText().toString()));
+        String ten=edtname.getText().toString();
+        String phone=edtsdt.getText().toString();
+        String diachi=edtdiachi.getText().toString();
+        Sinhvien user=new Sinhvien(mssv,ten,phone,diachi);
+        return user;
+
+    }
+    private void xoaUser() {
+        if (edtmasv.getText().toString().equals("")) {
+            Toast.makeText(this, "Hãy chọn 1 sinh viên", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Sinhvien user = new Sinhvien();
+            user.setMasv(Integer.parseInt(edtmasv.getText().toString().trim()));
+            if(databaseSinhvien.deleteUser(user) > 0 ){
+                sinhviens.clear();
+                for(Sinhvien u : databaseSinhvien.getAllUser()){
+                    sinhviens.add(u);
+                }
+                customAdapter.notifyDataSetChanged();
+                Toast.makeText(this, "Xóa thành công", Toast.LENGTH_SHORT).show();
+            }
+            else
+                Toast.makeText(this, "Có loiix khi xóa", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+
+
+
+}

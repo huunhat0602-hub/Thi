@@ -1,0 +1,58 @@
+package com.example.nguyenhuunhat_17071421;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import java.util.List;
+
+public class CustomAdapter extends ArrayAdapter<Sinhvien> {
+    private Context context;
+    private int resource;
+    private List<Sinhvien> sinhviens;
+    public CustomAdapter(@NonNull Context context
+            , int resource, @NonNull List<Sinhvien> sinhviens) {
+        super(context, resource, sinhviens);
+        this.context=context;
+        this.resource=resource;
+        this.sinhviens=sinhviens;
+    }
+
+    @NonNull
+    @Override
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        ViewHolder viewHolder;
+        if(convertView==null){
+            convertView= LayoutInflater.from(context).inflate(R.layout.item_listview_user,parent,false);
+            viewHolder=new ViewHolder();
+            viewHolder.tvMasv=(TextView)convertView.findViewById(R.id.tv_id);
+            viewHolder.tvname=(TextView)convertView.findViewById(R.id.tvName);
+            viewHolder.tvsdt=(TextView)convertView.findViewById(R.id.tv_sdt);
+            viewHolder.tvdiachi=(TextView)convertView.findViewById(R.id.tvDiaChi);
+
+            convertView.setTag(viewHolder);
+        }else{
+            viewHolder=(ViewHolder) convertView.getTag();
+        }
+        Sinhvien sinhvien=sinhviens.get(position);
+        viewHolder.tvMasv.setText(String.valueOf(sinhvien.getMasv()));
+        viewHolder.tvname.setText(sinhvien.getName());
+        viewHolder.tvsdt.setText(sinhvien.getSoDt());
+        viewHolder.tvdiachi.setText(sinhvien.getDiachi());
+        return convertView;
+    }
+    public class ViewHolder{
+       private TextView tvMasv;
+        private TextView tvname;
+        private TextView tvdiachi;
+        private TextView tvsdt;
+
+
+    }
+}

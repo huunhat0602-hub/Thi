@@ -1,0 +1,84 @@
+package com.example.nguyenhuunhat_17071421;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+import androidx.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class DatabaseSinhvien extends SQLiteOpenHelper {
+
+    public DatabaseSinhvien(@Nullable Context context,
+                            @Nullable String name,
+                            @Nullable SQLiteDatabase.CursorFactory factory, int version) {
+        super(context, name, factory, version);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+
+        String sql="CREATE TABLE sinhvien(" +
+            "masv INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "name TEXT NOT NULL," +
+                "diachi TEXT NOT NULL," +
+                "soDt TEXT NOT NULL)";
+        db.execSQL(sql);
+
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+    }
+    public void themSinhvien(Sinhvien sinhvien){
+        SQLiteDatabase db=this.getWritableDatabase();
+        ContentValues contentValues=new ContentValues();
+        contentValues.put("masv",sinhvien.getMasv());
+        contentValues.put("name",sinhvien.getName());
+        contentValues.put("diachi",sinhvien.getDiachi());
+        contentValues.put("soDt",sinhvien.getSoDt());
+        db.insert("sinhvien",null,contentValues);
+    }
+    public List<Sinhvien> getAllUser(){
+        List<Sinhvien> userList=new ArrayList<>();
+        String sql="select * from sinhvien";
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(sql,null);
+        if(cursor.moveToFirst()){
+            do{
+                Sinhvien user=new Sinhvien();
+                user.setMasv(cursor.getInt(0));
+                user.setName(cursor.getString(1));
+                user.setSoDt(cursor.getString(2));
+                user.setDiachi(cursor.getString(3));
+
+                userList.add(user);
+
+            }while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return userList;
+    }
+
+
+    public int updateUser(Sinhvien user){
+        SQLiteDatabase db=this.getWritableDatabase();
+        ContentValues contentValues=new ContentValues();
+        contentValues.put("masv",user.getMasv());
+        contentValues.put("name",user.getName());
+        contentValues.put("diachi",user.getDiachi());
+        contentValues.put("soDt",user.getSoDt());
+        return db.update("sinhvien",contentValues,"masv="+user.getMasv(),null);
+    }
+    public int deleteUser(Sinhvien uer){
+        SQLiteDatabase db=this.getWritableDatabase();
+        return db.delete("sinhvien","masv="+"'"+uer.getMasv()+ "'",null);
+    }
+}
+
